@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Heart Disease Prediction</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #dce35b, #45b649);
+    color: #222;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+  }
+  .container {
+    background: white;
+    border-radius: 15px;
+    padding: 20px 25px;
+    box-shadow: 0 10px 25px rgb(0 0 0 / 0.15);
+    width: 100%;
+    max-width: 350px;
+    max-height: 580px;
+    overflow-y: auto;
+  }
+  h1 {
+    margin: 0 0 15px 0;
+    font-weight: 700;
+    text-align: center;
+    color: #26734d;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  label {
+    margin: 10px 0 4px 0;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #4a4a4a;
+  }
+  select, input[type="number"] {
+    padding: 8px 10px;
+    border-radius: 7px;
+    border: 1.5px solid #a1c699;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+    width: 100%;
+  }
+  select:focus, input[type="number"]:focus {
+    border-color: #26734d;
+  }
+  button {
+    margin-top: 18px;
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    background: #26734d;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background: #1e5739;
+  }
+  .result {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  .positive {
+    background-color: #ff6b6b;
+    color: white;
+  }
+  .negative {
+    background-color: #4ec373;
+    color: white;
+  }
+  /* Scrollbar for container */
+  .container::-webkit-scrollbar {
+    width: 6px;
+  }
+  .container::-webkit-scrollbar-track {
+    background: #eee;
+    border-radius: 3px;
+  }
+  .container::-webkit-scrollbar-thumb {
+    background: #a1c699;
+    border-radius: 3px;
+  }
+  @media (max-width: 400px) {
+    body {
+      padding: 5px;
+    }
+    .container {
+      max-width: 100%;
+      max-height: 590px;
+      padding: 15px 15px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container" role="main">
+    <h1>Heart Disease Prediction</h1>
+    <form id="heartForm" aria-label="Heart disease prediction form">
+      <label for="age">Age (years)</label>
+      <input type="number" id="age" name="age" min="18" max="120" required aria-required="true" value="50" />
+      
+      <label for="sex">Sex</label>
+      <select id="sex" name="sex" required aria-required="true">
+        <option value="1">Male</option>
+        <option value="0">Female</option>
+      </select>
+      
+      <label for="cp">Chest Pain Type</label>
+      <select id="cp" name="cp" required aria-required="true" aria-describedby="cpDesc">
+        <option value="0">Typical Angina</option>
+        <option value="1">Atypical Angina</option>
+        <option value="2">Non-Anginal Pain</option>
+        <option value="3">Asymptomatic</option>
+      </select>
+      <small id="cpDesc" style="font-size:0.75rem; color:#666; margin-top:-5px; margin-bottom:8px;">
+        Types of chest pain related to heart disease
+      </small>
+
+      <label for="trestbps">Resting Blood Pressure (mm Hg)</label>
+      <input type="number" id="trestbps" name="trestbps" min="80" max="200" required aria-required="true" value="130" />
+      
+      <label for="chol">Cholesterol (mg/dl)</label>
+      <input type="number" id="chol" name="chol" min="100" max="600" required aria-required="true" value="230" />
+      
+      <label for="fbs">Fasting Blood Sugar > 120 mg/dl?</label>
+      <select id="fbs" name="fbs" required aria-required="true">
+        <option value="1">Yes</option>
+        <option value="0">No</option>
+      </select>
+
+      <label for="restecg">Resting ECG Results</label>
+      <select id="restecg" name="restecg" required aria-required="true" aria-describedby="ecgDesc">
+        <option value="0">Normal</option>
+        <option value="1">ST-T Wave Abnormality</option>
+        <option value="2">Left Ventricular Hypertrophy</option>
+      </select>
+      <small id="ecgDesc" style="font-size:0.75rem; color:#666; margin-top:-5px; margin-bottom:8px;">
+        Results from resting electrocardiographic measurement
+      </small>
+
+      <label for="thalach">Max Heart Rate Achieved</label>
+      <input type="number" id="thalach" name="thalach" min="70" max="210" required aria-required="true" value="150" />
+      
+      <label for="exang">Exercise Induced Angina?</label>
+      <select id="exang" name="exang" required aria-required="true">
+        <option value="1">Yes</option>
+        <option value="0">No</option>
+      </select>
+
+      <button type="submit" aria-label="Predict heart disease risk">Predict</button>
+    </form>
+
+    <div id="result" class="result" role="alert" aria-live="polite"></div>
+  </div>
+
+<script>
+  (() => {
+
+    const featureOrder = ['age','sex','cp','trestbps','chol','fbs','restecg','thalach','exang'];
+    const model = {
+      intercept: -0.85,
+      coef: [
+        0.045,    
+        1.15,     
+        0.8,      
+        0.015,    
+        0.004,    
+        0.7,      
+        0.6,      
+        -0.03,    
+        0.8       
+      ]
+    };
+    function sigmoid(z) {
+      return 1 / (1 + Math.exp(-z));
+    }
+    function transformCP(cp) {
+      return 3 - cp;
+    }
+
+    function predict(features) {
+
+      features[2] = transformCP(features[2]);
+
+      let z = model.intercept;
+      for (let i = 0; i < features.length; i++) {
+        z += model.coef[i] * features[i];
+      }
+      let probability = sigmoid(z);
+      return probability;
+    }
+    const form = document.getElementById('heartForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const inputValues = featureOrder.map(id => {
+        const val = document.getElementById(id).value;
+        return Number(val);
+      });
+
+      const prob = predict(inputValues);
+      const percentage = (prob * 100).toFixed(1);
+      if(prob > 0.5) {
+        resultDiv.textContent = `⚠️ High risk of heart disease detected (${percentage}%). Please consult a healthcare professional.`;
+        resultDiv.className = 'result positive';
+      } else {
+        resultDiv.textContent = `✅ Low risk of heart disease (${percentage}%). Maintain healthy lifestyle and regular checkups.`;
+        resultDiv.className = 'result negative';
+      }
+      resultDiv.scrollIntoView({behavior: "smooth"});
+    });
+  })();
+</script>
+</body>
+</html>
+</content>
+</create_file>
